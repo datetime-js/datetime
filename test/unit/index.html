@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>DateTime | Unit test</title>
+    <link rel="stylesheet" href="../lib/qunit/qunit.css">
+
+    <!-- DateTime, tzdata and locales -->
+    <script src="../../node_modules/datetime2-tzdata/tzdata/2017a/js/2017a-all.js"></script>
+    <script src="../../dist/datetime.js"></script>
+    <script src="../../node_modules/datetime2-locale-ru/ru.js"></script>
+    <script>
+      DateTime.defineLocale('ru', window['datetime2-locale-ru']);
+    </script>
+  </head>
+  <body>
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+
+    <!-- Utilities -->
+    <script src="../lib/qunit/qunit.js"></script>
+    <script src="../lib/utils/qunit-extend.js"></script>
+    <script src="../lib/utils/utils.js"></script>
+
+    <!-- Setup DateTime -->
+    <script>
+      DateTime.setTzdata(tzdata);
+    </script>
+
+    <!-- Spec files -->
+    <script src="spec/clone.spec.js"></script>
+    <script src="spec/create-instance.spec.js"></script>
+    <script src="spec/format.spec.js"></script>
+    <script src="spec/getters.spec.js"></script>
+    <script src="spec/invalid.spec.js"></script>
+    <script src="spec/is.spec.js"></script>
+    <script src="spec/misc.spec.js"></script>
+    <script src="spec/now.spec.js"></script>
+    <script src="spec/parse.spec.js"></script>
+    <script src="spec/setters.spec.js"></script>
+    <script src="spec/timezone-default.spec.js"></script>
+    <script src="spec/timezone-info.spec.js"></script>
+    <script src="spec/transform.spec.js"></script>
+    <script src="spec/transform-to.spec.js"></script>
+
+    <script src="spec/duration/duration.spec.js"></script>
+    <script src="spec/interval/interval.spec.js"></script>
+
+    <script src="spec/calendar/second.spec.js"></script>
+    <script src="spec/calendar/minute.spec.js"></script>
+    <script src="spec/calendar/hour.spec.js"></script>
+    <script src="spec/calendar/day.spec.js"></script>
+    <script src="spec/calendar/week.spec.js"></script>
+    <script src="spec/calendar/month.spec.js"></script>
+    <script src="spec/calendar/month-weeks.spec.js"></script>
+    <script src="spec/calendar/year.spec.js"></script>
+
+    <script src="spec/locale.spec.js"></script>
+    <script src="spec/locale/en.spec.js"></script>
+    <script src="spec/locale/ru.spec.js"></script>
+  </body>
+</html>

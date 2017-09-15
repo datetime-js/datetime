@@ -1,0 +1,6 @@
+{
+  "extends": [
+    "../node_modules/eslint-config-dshimkin/default.js",
+    "../node_modules/eslint-config-dshimkin/jasmine.js"
+  ]
+}

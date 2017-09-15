@@ -1,0 +1,14 @@
+{
+  "parserOptions": {
+    "ecmaVersion": "2015",
+    "sourceType": "module"
+  },
+  "globals": {
+    "global": false,
+    "module": false,
+    "require": false
+  },
+  "extends": "./node_modules/eslint-config-dshimkin/default.js",
+  "rules": {
+  }
+}

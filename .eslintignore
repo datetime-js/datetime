@@ -1,0 +1,7 @@
+coverage/
+dist/
+
+test/full/spec/cases/
+test/lib/qunit/
+
+Gulpfile.js
