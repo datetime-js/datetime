@@ -1,8 +1,14 @@
 import {
+  E_INVALID_ARGUMENT,
+  E_INVALID_ATTRIBUTE,
+  E_PARSE_FORMAT,
+  E_PARSE_ISO,
+  E_RANGE,
   FORMAT_RFC822,
   HOUR_MS,
   MINUTE_MS,
-  SECOND_MS
+  SECOND_MS,
+  message
 } from './constants';
 
 import {
@@ -41,6 +47,7 @@ import {
   isNumber,
   isSecond,
   isString,
+  isValidTimestamp,
   isWeek,
   isYear,
   normalizeDateAttributes,
@@ -53,7 +60,8 @@ import {
   _setDayOfWeek,
   setInvalid,
   timestampToDate,
-  validateDateAttributes
+  validateDateAttributes,
+  warn
 } from './utils';
 
 import {
@@ -118,22 +126,17 @@ function createFromDateTime (dt, dt2) {
 /**
  * @param {DateTime} dt
  * @param {number} timestamp
- * @param {string} timezone
+ * @param {string} timezoneName
  */
-function createFromTimestamp (dt, timestamp, timezone) {
+function createFromTimestamp (dt, timestamp, timezoneName) {
   // Validity status
   dt.invalid = false;
 
   // Timezone
-  dt.timezone = timezone;
+  dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezone);
-
-  if (isNaN(timestamp)) {
-    setInvalid(dt);
-    return;
-  }
+  dt.tzdata = getZoneTzdata(timezoneName);
 
   // Timestamp
   dt.timestamp = timestamp;
@@ -152,42 +155,43 @@ function createFromTimestamp (dt, timestamp, timezone) {
  * @param {DateTime} dt
  * @param {Array.<number>} dateAttrs
  * @param {number} offset
- * @param {string} timezone
+ * @param {string} timezoneName
  */
-function createFromAttributes (dt, dateAttrs, offset, timezone) {
+function createFromAttributes (dt, dateAttrs, offset, timezoneName) {
   // Validity status
   dt.invalid = false;
 
   // Timezone
-  dt.timezone = timezone;
+  dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezone);
+  dt.tzdata = getZoneTzdata(timezoneName);
 
   if (!validateDateAttributes(dateAttrs)) {
+    warn(message[E_INVALID_ATTRIBUTE]());
     setInvalid(dt);
     return;
   }
 
-  createFromAttributesSafe(dt, dateAttrs, offset, timezone);
+  createFromAttributesSafe(dt, dateAttrs, offset, timezoneName);
 }
 
 /**
  * @param {DateTime} dt
  * @param {Array.<number>} dateAttrs
  * @param {number} offset
- * @param {string} timezone
+ * @param {string} timezoneName
  * @param {boolean} preferLateAmbiguous
  */
-function createFromAttributesSafe (dt, dateAttrs, offset, timezone, preferLateAmbiguous = false) {
+function createFromAttributesSafe (dt, dateAttrs, offset, timezoneName, preferLateAmbiguous = false) {
   // Validity status
   dt.invalid = false;
 
   // Timezone
-  dt.timezone = timezone;
+  dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezone);
+  dt.tzdata = getZoneTzdata(timezoneName);
 
   // Attributes
   const givenAttrs = copyArray(dateAttrs);
@@ -212,30 +216,57 @@ function createFromAttributesSafe (dt, dateAttrs, offset, timezone, preferLateAm
  * @param {DateTime} dt
  * @param {string} dateStr
  * @param {string} formatStr
- * @param {string} timezone
+ * @param {string} timezoneName
  */
-function createFromString (dt, dateStr, formatStr, timezone) {
+function createFromString (dt, dateStr, formatStr, timezoneName) {
   // Validity status
   dt.invalid = false;
 
   // Timezone
-  dt.timezone = timezone;
+  dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezone);
+  dt.tzdata = getZoneTzdata(timezoneName);
 
   // Attributes
-  const dateAttrs = formatStr ? parseWithFormat(dateStr, formatStr, timezone) : parse(dateStr);
+  const dateAttrs = formatStr ? parseWithFormat(dateStr, formatStr, timezoneName) : parse(dateStr);
 
   if (!dateAttrs) {
+    const msg = formatStr
+      ? message[E_PARSE_FORMAT](dateStr, formatStr)
+      : message[E_PARSE_ISO](dateStr);
+
+    warn(msg);
     setInvalid(dt);
+
     return;
   }
 
   // Requested offset
   const offset = dateAttrs[7];
 
-  createFromAttributesSafe(dt, dateAttrs, offset, timezone);
+  createFromAttributesSafe(dt, dateAttrs, offset, timezoneName);
+}
+
+/**
+ * @param {DateTime} dt
+ * @param {string} timezoneName
+ * @param {string} error
+ * @param {*} arg
+ */
+function createFromInvalidArguments (dt, timezoneName, error, arg) {
+  // Validity status
+  dt.invalid = false;
+
+  // Timezone
+  dt.timezone = timezoneName;
+
+  // Timezone tzdata
+  dt.tzdata = getZoneTzdata(timezoneName);
+
+  warn(message[error](arg));
+
+  setInvalid(dt);
 }
 
 /**
@@ -247,24 +278,36 @@ function DateTime (arg0, arg1, arg2) {
   // Normalize arguments
   const noargs = arguments.length === 0;
 
-  let timezone = arg1;
+  let timezoneName = arg1;
   let formatStr = '';
 
   if (arguments.length === 3 && isString(arg1) && isString(arg2)) {
     formatStr = arg1;
-    timezone = arg2;
+    timezoneName = arg2;
   }
 
-  timezone = timezone || getDefaultTimezone();
+  timezoneName = timezoneName || getDefaultTimezone();
 
   // Create from timestamp
   if (noargs || isNumber(arg0)) {
-    return createFromTimestamp(this, noargs ? now() : arg0, timezone);
+    const timestamp = noargs ? now() : arg0;
+
+    // Handle invalid number
+    if (!isFinite(timestamp)) {
+      return createFromInvalidArguments(dt, timezoneName, E_INVALID_ARGUMENT, timestamp);
+    }
+
+    // Handle invalid number that out of the supported range
+    if (!isValidTimestamp(timestamp)) {
+      return createFromInvalidArguments(dt, timezoneName, E_RANGE, timestamp);
+    }
+
+    return createFromTimestamp(dt, timestamp, timezoneName);
   }
 
   // Create from string
   if (isString(arg0)) {
-    return createFromString(dt, arg0, formatStr, timezone);
+    return createFromString(dt, arg0, formatStr, timezoneName);
   }
 
   // Create from DateTime
@@ -274,8 +317,11 @@ function DateTime (arg0, arg1, arg2) {
 
   // Create from array of attributes
   if (isArrayLike(arg0)) {
-    return createFromAttributes(dt, arg0, null/** offset */, timezone);
+    return createFromAttributes(dt, arg0, null/** offset */, timezoneName);
   }
+
+  // Handle invalid arguments
+  return createFromInvalidArguments(dt, timezoneName, E_INVALID_ARGUMENT, arg0);
 }
 
 /**

@@ -37,6 +37,42 @@ export const LEAP_MONTH_POINTS = [0];
 /** {string} */
 export const FORMAT_RFC822 = 'ddd MMM DD YYYY HH:mm:ss ZZ (zz)';
 
+/** {number} */
+export const MIN_TIMESTAMP_VALUE = -9007199254740992;
+
+/** {number} */
+export const MAX_TIMESTAMP_VALUE = 9007199254740992;
+
+/** {string} */
+export const E_INVALID_ARGUMENT = 'E_INVALID_ARGUMENT';
+
+/** {string} */
+export const E_INVALID_ATTRIBUTE = 'E_INVALID_ATTRIBUTE';
+
+/** {string} */
+export const E_PARSE_FORMAT = 'E_PARSE_FORMAT';
+
+/** {string} */
+export const E_PARSE_ISO = 'E_PARSE_ISO';
+
+/** {string} */
+export const E_RANGE = 'E_RANGE';
+
+/** {Object} */
+export const message = {
+  [E_INVALID_ARGUMENT]: arg => `${arg} is not a valid argument. Argument must be a string, ` +
+    'or a number, or an array, or another instance of DateTime',
+
+  [E_INVALID_ATTRIBUTE]: () => 'At least one of the given date attributes is not a valid number',
+
+  [E_PARSE_FORMAT]: (dateStr, format) => `The given string "${dateStr}" does not match to the given "${format}" format`,
+
+  [E_PARSE_ISO]: dateStr => `The given string "${dateStr}" is not a valid ISO-8601 date`,
+
+  [E_RANGE]: arg => `The given timestamp ${arg} is too big. It must be in a range of ` +
+    '-9,007,199,254,740,992 to 9,007,199,254,740,992'
+};
+
 let value;
 let prev;
 let next;

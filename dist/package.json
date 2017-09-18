@@ -1,6 +1,6 @@
 {
   "name": "datetime2",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Date and time library with iana timezones support",
   "author": "Dmitry Shimkin <dmitryshimkin@gmail.com>",
   "main": "./datetime.js",

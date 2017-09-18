@@ -18,6 +18,8 @@ import {
   DAY_MS,
   YEAR_MS,
   LEAP_YEAR_MS,
+  MAX_TIMESTAMP_VALUE,
+  MIN_TIMESTAMP_VALUE,
   MONTH_MS,
   MONTH_POINTS,
   LEAP_MONTH_POINTS
@@ -718,7 +720,7 @@ export function leftPad (str, len) {
 export function validateDateAttributes (dateAttrs) {
   let idx = dateAttrs.length;
   while (idx--) {
-    if (!isNumber(dateAttrs[idx]) || isNaN(dateAttrs[idx])) {
+    if (!isNumber(dateAttrs[idx]) || !isFinite(dateAttrs[idx])) {
       return false;
     }
   }
@@ -1061,6 +1063,14 @@ export function extend (target, source) {
 }
 
 /**
+ * @param {number} timestamp
+ * @returns {boolean}
+ */
+export function isValidTimestamp (timestamp) {
+  return timestamp > MIN_TIMESTAMP_VALUE && timestamp < MAX_TIMESTAMP_VALUE;
+}
+
+/**
  * @param {Function} Parent
  * @param {Function} Child
  * @inner
@@ -1108,4 +1118,12 @@ export function toInteger (arg) {
 
 export function now () {
   return getNow()();
+}
+
+export function warn (msg) {
+  try {
+    console.warn(msg);
+  } catch (ex) {
+    //
+  }
 }

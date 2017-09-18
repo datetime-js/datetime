@@ -96,6 +96,7 @@ const testAllZones = zones => {
 
 if (zoneName === 'all') {
   testAllZones(Object.keys(tzdata.zones));
+  // eslint-disable-next-line no-use-before-define
   return;
 }
 

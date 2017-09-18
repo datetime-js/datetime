@@ -1,6 +1,6 @@
 /**
  * datetime2
- * Version: 2.0.2
+ * Version: 2.0.3
  * Author: Dmitry Shimkin <dmitryshimkin@gmail.com>
  * License: MIT
  * https://github.com/datetime-js/datetime
@@ -49,6 +49,37 @@ var LEAP_MONTH_POINTS = [0];
 
 /** {string} */
 var FORMAT_RFC822 = 'ddd MMM DD YYYY HH:mm:ss ZZ (zz)';
+
+/** {number} */
+var MIN_TIMESTAMP_VALUE = -9007199254740992;
+
+/** {number} */
+var MAX_TIMESTAMP_VALUE = 9007199254740992;
+
+/** {string} */
+var E_INVALID_ARGUMENT = 'E_INVALID_ARGUMENT';
+
+/** {string} */
+var E_INVALID_ATTRIBUTE = 'E_INVALID_ATTRIBUTE';
+
+/** {string} */
+var E_PARSE_FORMAT = 'E_PARSE_FORMAT';
+
+/** {string} */
+var E_PARSE_ISO = 'E_PARSE_ISO';
+
+/** {string} */
+var E_RANGE = 'E_RANGE';
+
+/** {Object} */
+var message = {};
+message[E_INVALID_ARGUMENT] = function (arg) { return arg + " is not a valid argument. Argument must be a string, " +
+    'or a number, or an array, or another instance of DateTime'; };
+message[E_INVALID_ATTRIBUTE] = function () { return 'At least one of the given date attributes is not a valid number'; };
+message[E_PARSE_FORMAT] = function (dateStr, format) { return ("The given string \"" + dateStr + "\" does not match to the given \"" + format + "\" format"); };
+message[E_PARSE_ISO] = function (dateStr) { return ("The given string \"" + dateStr + "\" is not a valid ISO-8601 date"); };
+message[E_RANGE] = function (arg) { return "The given timestamp " + arg + " is too big. It must be in a range of " +
+    '-9,007,199,254,740,992 to 9,007,199,254,740,992'; };
 
 var value;
 var prev;
@@ -1932,7 +1963,7 @@ function leftPad (str, len) {
 function validateDateAttributes (dateAttrs) {
   var idx = dateAttrs.length;
   while (idx--) {
-    if (!isNumber(dateAttrs[idx]) || isNaN(dateAttrs[idx])) {
+    if (!isNumber(dateAttrs[idx]) || !isFinite(dateAttrs[idx])) {
       return false;
     }
   }
@@ -2275,6 +2306,14 @@ function extend (target, source) {
 }
 
 /**
+ * @param {number} timestamp
+ * @returns {boolean}
+ */
+function isValidTimestamp (timestamp) {
+  return timestamp > MIN_TIMESTAMP_VALUE && timestamp < MAX_TIMESTAMP_VALUE;
+}
+
+/**
  * @param {Function} Parent
  * @param {Function} Child
  * @inner
@@ -2322,6 +2361,14 @@ function toInteger (arg) {
 
 function now () {
   return getNow()();
+}
+
+function warn (msg) {
+  try {
+    console.warn(msg);
+  } catch (ex) {
+    //
+  }
 }
 
 /*
@@ -3458,22 +3505,17 @@ function createFromDateTime (dt, dt2) {
 /**
  * @param {DateTime} dt
  * @param {number} timestamp
- * @param {string} timezone
+ * @param {string} timezoneName
  */
-function createFromTimestamp (dt, timestamp, timezone) {
+function createFromTimestamp (dt, timestamp, timezoneName) {
   // Validity status
   dt.invalid = false;
 
   // Timezone
-  dt.timezone = timezone;
+  dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezone);
-
-  if (isNaN(timestamp)) {
-    setInvalid$$1(dt);
-    return;
-  }
+  dt.tzdata = getZoneTzdata(timezoneName);
 
   // Timestamp
   dt.timestamp = timestamp;
@@ -3492,44 +3534,45 @@ function createFromTimestamp (dt, timestamp, timezone) {
  * @param {DateTime} dt
  * @param {Array.<number>} dateAttrs
  * @param {number} offset
- * @param {string} timezone
+ * @param {string} timezoneName
  */
-function createFromAttributes (dt, dateAttrs, offset, timezone) {
+function createFromAttributes (dt, dateAttrs, offset, timezoneName) {
   // Validity status
   dt.invalid = false;
 
   // Timezone
-  dt.timezone = timezone;
+  dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezone);
+  dt.tzdata = getZoneTzdata(timezoneName);
 
   if (!validateDateAttributes(dateAttrs)) {
+    warn(message[E_INVALID_ATTRIBUTE]());
     setInvalid$$1(dt);
     return;
   }
 
-  createFromAttributesSafe(dt, dateAttrs, offset, timezone);
+  createFromAttributesSafe(dt, dateAttrs, offset, timezoneName);
 }
 
 /**
  * @param {DateTime} dt
  * @param {Array.<number>} dateAttrs
  * @param {number} offset
- * @param {string} timezone
+ * @param {string} timezoneName
  * @param {boolean} preferLateAmbiguous
  */
-function createFromAttributesSafe (dt, dateAttrs, offset, timezone, preferLateAmbiguous) {
+function createFromAttributesSafe (dt, dateAttrs, offset, timezoneName, preferLateAmbiguous) {
   if ( preferLateAmbiguous === void 0 ) preferLateAmbiguous = false;
 
   // Validity status
   dt.invalid = false;
 
   // Timezone
-  dt.timezone = timezone;
+  dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezone);
+  dt.tzdata = getZoneTzdata(timezoneName);
 
   // Attributes
   var givenAttrs = copyArray(dateAttrs);
@@ -3554,30 +3597,57 @@ function createFromAttributesSafe (dt, dateAttrs, offset, timezone, preferLateAm
  * @param {DateTime} dt
  * @param {string} dateStr
  * @param {string} formatStr
- * @param {string} timezone
+ * @param {string} timezoneName
  */
-function createFromString (dt, dateStr, formatStr, timezone) {
+function createFromString (dt, dateStr, formatStr, timezoneName) {
   // Validity status
   dt.invalid = false;
 
   // Timezone
-  dt.timezone = timezone;
+  dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezone);
+  dt.tzdata = getZoneTzdata(timezoneName);
 
   // Attributes
-  var dateAttrs = formatStr ? parseWithFormat(dateStr, formatStr, timezone) : parse(dateStr);
+  var dateAttrs = formatStr ? parseWithFormat(dateStr, formatStr, timezoneName) : parse(dateStr);
 
   if (!dateAttrs) {
+    var msg = formatStr
+      ? message[E_PARSE_FORMAT](dateStr, formatStr)
+      : message[E_PARSE_ISO](dateStr);
+
+    warn(msg);
     setInvalid$$1(dt);
+
     return;
   }
 
   // Requested offset
   var offset = dateAttrs[7];
 
-  createFromAttributesSafe(dt, dateAttrs, offset, timezone);
+  createFromAttributesSafe(dt, dateAttrs, offset, timezoneName);
+}
+
+/**
+ * @param {DateTime} dt
+ * @param {string} timezoneName
+ * @param {string} error
+ * @param {*} arg
+ */
+function createFromInvalidArguments (dt, timezoneName, error, arg) {
+  // Validity status
+  dt.invalid = false;
+
+  // Timezone
+  dt.timezone = timezoneName;
+
+  // Timezone tzdata
+  dt.tzdata = getZoneTzdata(timezoneName);
+
+  warn(message[error](arg));
+
+  setInvalid$$1(dt);
 }
 
 /**
@@ -3589,24 +3659,36 @@ function DateTime$2 (arg0, arg1, arg2) {
   // Normalize arguments
   var noargs = arguments.length === 0;
 
-  var timezone = arg1;
+  var timezoneName = arg1;
   var formatStr = '';
 
   if (arguments.length === 3 && isString(arg1) && isString(arg2)) {
     formatStr = arg1;
-    timezone = arg2;
+    timezoneName = arg2;
   }
 
-  timezone = timezone || getDefaultTimezone();
+  timezoneName = timezoneName || getDefaultTimezone();
 
   // Create from timestamp
   if (noargs || isNumber(arg0)) {
-    return createFromTimestamp(this, noargs ? now() : arg0, timezone);
+    var timestamp = noargs ? now() : arg0;
+
+    // Handle invalid number
+    if (!isFinite(timestamp)) {
+      return createFromInvalidArguments(dt, timezoneName, E_INVALID_ARGUMENT, timestamp);
+    }
+
+    // Handle invalid number that out of the supported range
+    if (!isValidTimestamp(timestamp)) {
+      return createFromInvalidArguments(dt, timezoneName, E_RANGE, timestamp);
+    }
+
+    return createFromTimestamp(dt, timestamp, timezoneName);
   }
 
   // Create from string
   if (isString(arg0)) {
-    return createFromString(dt, arg0, formatStr, timezone);
+    return createFromString(dt, arg0, formatStr, timezoneName);
   }
 
   // Create from DateTime
@@ -3616,8 +3698,11 @@ function DateTime$2 (arg0, arg1, arg2) {
 
   // Create from array of attributes
   if (isArrayLike(arg0)) {
-    return createFromAttributes(dt, arg0, null/** offset */, timezone);
+    return createFromAttributes(dt, arg0, null/** offset */, timezoneName);
   }
+
+  // Handle invalid arguments
+  return createFromInvalidArguments(dt, timezoneName, E_INVALID_ARGUMENT, arg0);
 }
 
 /**

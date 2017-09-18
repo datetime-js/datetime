@@ -16,3 +16,6 @@ global.tzdata = require(`${nodeModulesPath}/datetime2-tzdata/tzdata/2017a/js/201
 
 DateTime.setTzdata(tzdata);
 DateTime.defineLocale('ru', localeRu);
+
+// Suppress console warnings
+console.warn = function () {};
