@@ -1,5 +1,19 @@
 import DateTime from '../DateTime';
-import { extend, isDateTime, isInterval, isNumber } from '../utils';
+
+import {
+  E_INVALID_INTERVAL_START,
+  E_INVALID_INTERVAL_END,
+  E_INVALID_INTERVAL_ORDER,
+  message
+} from '../constants';
+
+import {
+  extend,
+  isDateTime,
+  isInterval,
+  isNumber,
+  warn
+} from '../utils';
 
 function parseArg (arg) {
   return new DateTime(arg);
@@ -12,24 +26,27 @@ function parseArg (arg) {
  * @class
  */
 function Interval (start, end) {
-  start = parseArg(start);
-  end = parseArg(end);
+  const dtstart = parseArg(start);
+  const dtend = parseArg(end);
 
-  this._start = start;
-  this._end = end;
+  this._start = dtstart;
+  this._end = dtend;
 
-  if (start.isInvalid() || end.isInvalid()) {
+  if (dtstart.isInvalid() || dtend.isInvalid()) {
+    const msg = dtstart.isInvalid()
+      ? message[E_INVALID_INTERVAL_START](start)
+      : message[E_INVALID_INTERVAL_END](end);
+
+    warn(msg);
     setInvalid(this);
+
     return;
   }
 
-  if (start > end) {
+  if (dtstart > dtend) {
+    warn(message[E_INVALID_INTERVAL_ORDER]());
     setInvalid(this);
-    return;
-  }
 
-  if (start.isInvalid() || end.isInvalid()) {
-    setInvalid(this);
     return;
   }
 

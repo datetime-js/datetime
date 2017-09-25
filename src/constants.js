@@ -50,6 +50,15 @@ export const E_INVALID_ARGUMENT = 'E_INVALID_ARGUMENT';
 export const E_INVALID_ATTRIBUTE = 'E_INVALID_ATTRIBUTE';
 
 /** {string} */
+export const E_INVALID_INTERVAL_END = 'E_INVALID_INTERVAL_END';
+
+/** {string} */
+export const E_INVALID_INTERVAL_ORDER = 'E_INVALID_INTERVAL_ORDER';
+
+/** {string} */
+export const E_INVALID_INTERVAL_START = 'E_INVALID_INTERVAL_START';
+
+/** {string} */
 export const E_PARSE_FORMAT = 'E_PARSE_FORMAT';
 
 /** {string} */
@@ -65,11 +74,17 @@ export const message = {
 
   [E_INVALID_ATTRIBUTE]: () => 'At least one of the given date attributes is not a valid number',
 
-  [E_PARSE_FORMAT]: (dateStr, format) => `The given string "${dateStr}" does not match to the given "${format}" format`,
+  [E_INVALID_INTERVAL_END]: arg => `Interval end "${arg}" cannot be parsed as a datetime`,
 
-  [E_PARSE_ISO]: dateStr => `The given string "${dateStr}" is not a valid ISO-8601 date`,
+  [E_INVALID_INTERVAL_ORDER]: arg => 'Interval end cannot be earlier than interval start',
 
-  [E_RANGE]: arg => `The given timestamp ${arg} is too big. It must be in a range of ` +
+  [E_INVALID_INTERVAL_START]: arg => `Interval start "${arg}" cannot not parsed as a datetime`,
+
+  [E_PARSE_FORMAT]: (dateStr, format) => `String "${dateStr}" does not match to the given "${format}" format`,
+
+  [E_PARSE_ISO]: dateStr => `String "${dateStr}" is not a valid ISO-8601 date`,
+
+  [E_RANGE]: arg => `Timestamp ${arg} is too big. It must be in a range of ` +
     '-9,007,199,254,740,992 to 9,007,199,254,740,992'
 };
 

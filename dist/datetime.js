@@ -1,6 +1,6 @@
 /**
  * datetime2
- * Version: 2.0.3
+ * Version: 2.0.4
  * Author: Dmitry Shimkin <dmitryshimkin@gmail.com>
  * License: MIT
  * https://github.com/datetime-js/datetime
@@ -63,6 +63,15 @@ var E_INVALID_ARGUMENT = 'E_INVALID_ARGUMENT';
 var E_INVALID_ATTRIBUTE = 'E_INVALID_ATTRIBUTE';
 
 /** {string} */
+var E_INVALID_INTERVAL_END = 'E_INVALID_INTERVAL_END';
+
+/** {string} */
+var E_INVALID_INTERVAL_ORDER = 'E_INVALID_INTERVAL_ORDER';
+
+/** {string} */
+var E_INVALID_INTERVAL_START = 'E_INVALID_INTERVAL_START';
+
+/** {string} */
 var E_PARSE_FORMAT = 'E_PARSE_FORMAT';
 
 /** {string} */
@@ -76,9 +85,12 @@ var message = {};
 message[E_INVALID_ARGUMENT] = function (arg) { return arg + " is not a valid argument. Argument must be a string, " +
     'or a number, or an array, or another instance of DateTime'; };
 message[E_INVALID_ATTRIBUTE] = function () { return 'At least one of the given date attributes is not a valid number'; };
-message[E_PARSE_FORMAT] = function (dateStr, format) { return ("The given string \"" + dateStr + "\" does not match to the given \"" + format + "\" format"); };
-message[E_PARSE_ISO] = function (dateStr) { return ("The given string \"" + dateStr + "\" is not a valid ISO-8601 date"); };
-message[E_RANGE] = function (arg) { return "The given timestamp " + arg + " is too big. It must be in a range of " +
+message[E_INVALID_INTERVAL_END] = function (arg) { return ("Interval end \"" + arg + "\" cannot be parsed as a datetime"); };
+message[E_INVALID_INTERVAL_ORDER] = function (arg) { return 'Interval end cannot be earlier than interval start'; };
+message[E_INVALID_INTERVAL_START] = function (arg) { return ("Interval start \"" + arg + "\" cannot not parsed as a datetime"); };
+message[E_PARSE_FORMAT] = function (dateStr, format) { return ("String \"" + dateStr + "\" does not match to the given \"" + format + "\" format"); };
+message[E_PARSE_ISO] = function (dateStr) { return ("String \"" + dateStr + "\" is not a valid ISO-8601 date"); };
+message[E_RANGE] = function (arg) { return "Timestamp " + arg + " is too big. It must be in a range of " +
     '-9,007,199,254,740,992 to 9,007,199,254,740,992'; };
 
 var value;
@@ -110,24 +122,27 @@ function parseArg (arg) {
  * @class
  */
 function Interval (start, end) {
-  start = parseArg(start);
-  end = parseArg(end);
+  var dtstart = parseArg(start);
+  var dtend = parseArg(end);
 
-  this._start = start;
-  this._end = end;
+  this._start = dtstart;
+  this._end = dtend;
 
-  if (start.isInvalid() || end.isInvalid()) {
+  if (dtstart.isInvalid() || dtend.isInvalid()) {
+    var msg = dtstart.isInvalid()
+      ? message[E_INVALID_INTERVAL_START](start)
+      : message[E_INVALID_INTERVAL_END](end);
+
+    warn(msg);
     setInvalid$1(this);
+
     return;
   }
 
-  if (start > end) {
+  if (dtstart > dtend) {
+    warn(message[E_INVALID_INTERVAL_ORDER]());
     setInvalid$1(this);
-    return;
-  }
 
-  if (start.isInvalid() || end.isInvalid()) {
-    setInvalid$1(this);
     return;
   }
 
