@@ -1,11 +1,6 @@
 import DateTime from '../DateTime';
 
-import {
-  E_INVALID_INTERVAL_START,
-  E_INVALID_INTERVAL_END,
-  E_INVALID_INTERVAL_ORDER,
-  message
-} from '../constants';
+import { E_INVALID_INTERVAL_ORDER, message } from '../constants';
 
 import {
   extend,
@@ -32,25 +27,34 @@ function Interval (start, end) {
   this._start = dtstart;
   this._end = dtend;
 
-  if (dtstart.isInvalid() || dtend.isInvalid()) {
-    const msg = dtstart.isInvalid()
-      ? message[E_INVALID_INTERVAL_START](start)
-      : message[E_INVALID_INTERVAL_END](end);
+  updateValidity(this);
+}
 
-    warn(msg);
-    setInvalid(this);
+/**
+ * ----------------------------------------------------------------------------------------
+ * Static inner functions
+ * ----------------------------------------------------------------------------------------
+ */
 
+/**
+ * @param {Interval} interval
+ * @inner
+ */
+export function updateValidity (interval) {
+  const start = interval._start;
+  const end = interval._end;
+
+  interval._invalid = false;
+
+  if (start.isInvalid() || end.isInvalid()) {
+    interval._invalid = true;
     return;
   }
 
-  if (dtstart > dtend) {
+  if (start > end) {
     warn(message[E_INVALID_INTERVAL_ORDER]());
-    setInvalid(this);
-
-    return;
+    interval._invalid = true;
   }
-
-  this._invalid = false;
 }
 
 /**
@@ -61,14 +65,6 @@ function Interval (start, end) {
 
 function isStartOfDay (dt) {
   return dt.isEqual(dt.toStartOfDay());
-}
-
-/**
- * @param {Interval} interval
- * @inner
- */
-export function setInvalid (interval) {
-  interval._invalid = true;
 }
 
 /**

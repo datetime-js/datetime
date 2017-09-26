@@ -1,5 +1,8 @@
+import { updateValidity } from '../interval/Interval';
+
 import ACalendarInterval, { parseArgument } from './ACalendarInterval';
 import Week from './Week';
+
 import { extend, inherit } from '../utils';
 
 /**
@@ -17,18 +20,22 @@ inherit(ACalendarInterval, MonthWeeks);
  * @param {String} [timezone]
  */
 function init (dt, timezone) {
-  this._start = parseArgument.apply(null, arguments);
+  const start = parseArgument.apply(null, arguments);
+  const end = start.clone();
 
-  this._end = this._start.clone();
-
-  this._start
+  start
     .setStartOfMonth()
     .setStartOfWeek();
 
-  this._end
+  end
     .setEndOfMonth()
     .setEndOfWeek()
     .add(1);
+
+  this._start = start;
+  this._end = end;
+
+  updateValidity(this);
 }
 
 /**

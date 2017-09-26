@@ -1,6 +1,6 @@
 /**
  * datetime2
- * Version: 2.0.4
+ * Version: 2.0.5
  * Author: Dmitry Shimkin <dmitryshimkin@gmail.com>
  * License: MIT
  * https://github.com/datetime-js/datetime
@@ -63,13 +63,7 @@ var E_INVALID_ARGUMENT = 'E_INVALID_ARGUMENT';
 var E_INVALID_ATTRIBUTE = 'E_INVALID_ATTRIBUTE';
 
 /** {string} */
-var E_INVALID_INTERVAL_END = 'E_INVALID_INTERVAL_END';
-
-/** {string} */
 var E_INVALID_INTERVAL_ORDER = 'E_INVALID_INTERVAL_ORDER';
-
-/** {string} */
-var E_INVALID_INTERVAL_START = 'E_INVALID_INTERVAL_START';
 
 /** {string} */
 var E_PARSE_FORMAT = 'E_PARSE_FORMAT';
@@ -85,9 +79,7 @@ var message = {};
 message[E_INVALID_ARGUMENT] = function (arg) { return arg + " is not a valid argument. Argument must be a string, " +
     'or a number, or an array, or another instance of DateTime'; };
 message[E_INVALID_ATTRIBUTE] = function () { return 'At least one of the given date attributes is not a valid number'; };
-message[E_INVALID_INTERVAL_END] = function (arg) { return ("Interval end \"" + arg + "\" cannot be parsed as a datetime"); };
 message[E_INVALID_INTERVAL_ORDER] = function (arg) { return 'Interval end cannot be earlier than interval start'; };
-message[E_INVALID_INTERVAL_START] = function (arg) { return ("Interval start \"" + arg + "\" cannot not parsed as a datetime"); };
 message[E_PARSE_FORMAT] = function (dateStr, format) { return ("String \"" + dateStr + "\" does not match to the given \"" + format + "\" format"); };
 message[E_PARSE_ISO] = function (dateStr) { return ("String \"" + dateStr + "\" is not a valid ISO-8601 date"); };
 message[E_RANGE] = function (arg) { return "Timestamp " + arg + " is too big. It must be in a range of " +
@@ -128,25 +120,34 @@ function Interval (start, end) {
   this._start = dtstart;
   this._end = dtend;
 
-  if (dtstart.isInvalid() || dtend.isInvalid()) {
-    var msg = dtstart.isInvalid()
-      ? message[E_INVALID_INTERVAL_START](start)
-      : message[E_INVALID_INTERVAL_END](end);
+  updateValidity(this);
+}
 
-    warn(msg);
-    setInvalid$1(this);
+/**
+ * ----------------------------------------------------------------------------------------
+ * Static inner functions
+ * ----------------------------------------------------------------------------------------
+ */
 
+/**
+ * @param {Interval} interval
+ * @inner
+ */
+function updateValidity (interval) {
+  var start = interval._start;
+  var end = interval._end;
+
+  interval._invalid = false;
+
+  if (start.isInvalid() || end.isInvalid()) {
+    interval._invalid = true;
     return;
   }
 
-  if (dtstart > dtend) {
+  if (start > end) {
     warn(message[E_INVALID_INTERVAL_ORDER]());
-    setInvalid$1(this);
-
-    return;
+    interval._invalid = true;
   }
-
-  this._invalid = false;
 }
 
 /**
@@ -157,14 +158,6 @@ function Interval (start, end) {
 
 function isStartOfDay (dt) {
   return dt.isEqual(dt.toStartOfDay());
-}
-
-/**
- * @param {Interval} interval
- * @inner
- */
-function setInvalid$1 (interval) {
-  interval._invalid = true;
 }
 
 /**
@@ -549,11 +542,16 @@ inherit(ACalendarInterval, Month);
  * @param {String} [timezone]
  */
 function init$4 (dt, timezone) {
-  this._start = parseArgument.apply(null, arguments);
-  this._start.setStartOfMonth();
+  var start = parseArgument.apply(null, arguments);
+  start.setStartOfMonth();
 
-  this._end = this._start.clone();
-  this._end.setMonth(this._start.getMonth() + 1);
+  var end = start.clone();
+  end.setMonth(start.getMonth() + 1);
+
+  this._start = start;
+  this._end = end;
+
+  updateValidity(this);
 }
 
 /**
@@ -600,11 +598,16 @@ inherit(ACalendarInterval, Week);
  * @param {String} [timezone]
  */
 function init$6 (dt, timezone) {
-  this._start = parseArgument.apply(null, arguments);
-  this._start.setStartOfWeek();
+  var start = parseArgument.apply(null, arguments);
+  start.setStartOfWeek();
 
-  this._end = this._start.clone();
-  this._end.setDayOfMonth(this._start.getDayOfMonth() + 7);
+  var end = start.clone();
+  end.setDayOfMonth(start.getDayOfMonth() + 7);
+
+  this._start = start;
+  this._end = end;
+
+  updateValidity(this);
 }
 
 /**
@@ -645,18 +648,22 @@ inherit(ACalendarInterval, MonthWeeks);
  * @param {String} [timezone]
  */
 function init$5 (dt, timezone) {
-  this._start = parseArgument.apply(null, arguments);
+  var start = parseArgument.apply(null, arguments);
+  var end = start.clone();
 
-  this._end = this._start.clone();
-
-  this._start
+  start
     .setStartOfMonth()
     .setStartOfWeek();
 
-  this._end
+  end
     .setEndOfMonth()
     .setEndOfWeek()
     .add(1);
+
+  this._start = start;
+  this._end = end;
+
+  updateValidity(this);
 }
 
 /**
@@ -699,11 +706,16 @@ inherit(ACalendarInterval, Year);
  * @param {string} [timezone]
  */
 function init$7 (dt, timezone) {
-  this._start = parseArgument.apply(null, arguments);
-  this._start.setStartOfYear();
+  var start = parseArgument.apply(null, arguments);
+  start.setStartOfYear();
 
-  this._end = this._start.clone();
-  this._end.setYear(this._start.getYear() + 1);
+  var end = start.clone();
+  end.setYear(start.getYear() + 1);
+
+  this._start = start;
+  this._end = end;
+
+  updateValidity(this);
 }
 
 /**
@@ -886,11 +898,16 @@ inherit(ACalendarInterval, Second);
  * @param {String} [timezone]
  */
 function init$3 (dt, timezone) {
-  this._start = parseArgument.apply(null, arguments);
-  this._start.setStartOfSecond();
+  var start = parseArgument.apply(null, arguments);
+  start.setStartOfSecond();
 
-  this._end = this._start.clone();
-  this._end.setSecond(this._start.getSecond() + 1);
+  var end = start.clone();
+  end.setSecond(start.getSecond() + 1);
+
+  this._start = start;
+  this._end = end;
+
+  updateValidity(this);
 }
 
 extend(Second.prototype, {
@@ -915,11 +932,16 @@ inherit(ACalendarInterval, Minute);
  * @param {String} [timezone]
  */
 function init$2 (dt, timezone) {
-  this._start = parseArgument.apply(null, arguments);
-  this._start.setStartOfMinute();
+  var start = parseArgument.apply(null, arguments);
+  start.setStartOfMinute();
 
-  this._end = this._start.clone();
-  this._end.setMinute(this._start.getMinute() + 1);
+  var end = start.clone();
+  end.setMinute(start.getMinute() + 1);
+
+  this._start = start;
+  this._end = end;
+
+  updateValidity(this);
 }
 
 /**
@@ -965,11 +987,16 @@ inherit(ACalendarInterval, Hour);
  * @param {String} [timezone]
  */
 function init$1 (dt, timezone) {
-  this._start = parseArgument.apply(null, arguments);
-  this._start.setStartOfHour();
+  var start = parseArgument.apply(null, arguments);
+  start.setStartOfHour();
 
-  this._end = this._start.clone();
-  this._end.add(HOUR_MS);
+  var end = start.clone();
+  end.add(HOUR_MS);
+
+  this._start = start;
+  this._end = end;
+
+  updateValidity(this);
 }
 
 /**
@@ -1017,11 +1044,16 @@ inherit(ACalendarInterval, Day);
  * @param {String} [timezone]
  */
 function init (dt, timezone) {
-  this._start = parseArgument.apply(null, arguments);
-  this._start.setStartOfDay();
+  var start = parseArgument.apply(null, arguments);
+  start.setStartOfDay();
 
-  this._end = this._start.clone();
-  this._end.setDayOfMonth(this._start.getDayOfMonth() + 1);
+  var end = start.clone();
+  end.setDayOfMonth(start.getDayOfMonth() + 1);
+
+  this._start = start;
+  this._end = end;
+
+  updateValidity(this);
 }
 
 /**
@@ -1074,7 +1106,7 @@ var RE_ISO8601 = /^(-)?P(?:([0-9]+)Y)?(?:([0-9]+)M)?(?:([0-9]+)D)?(T(?:([0-9]+)H
  */
 function createFromString$1 (duration, str) {
   if (!isParsableAsDuration(str)) {
-    setInvalid$2(duration);
+    setInvalid$1(duration);
     return;
   }
 
@@ -1123,7 +1155,7 @@ function isParsableAsDuration (str) {
  * @param {Duration} duration
  * @inner
  */
-function setInvalid$2 (duration) {
+function setInvalid$1 (duration) {
   duration.invalid = true;
 }
 
@@ -1222,7 +1254,7 @@ function Duration (arg) {
     return;
   }
 
-  setInvalid$2(duration);
+  setInvalid$1(duration);
 }
 
 /**
@@ -2354,7 +2386,7 @@ function trim (str) {
  * @param {DateTime} dt
  * @inner
  */
-function setInvalid$$1 (dt) {
+function setInvalid (dt) {
   dt.invalid = true;
   dt.timestamp = NaN;
   dt.date = [NaN, NaN, NaN, NaN, NaN, NaN, NaN];
@@ -3563,7 +3595,7 @@ function createFromAttributes (dt, dateAttrs, offset, timezoneName) {
 
   if (!validateDateAttributes(dateAttrs)) {
     warn(message[E_INVALID_ATTRIBUTE]());
-    setInvalid$$1(dt);
+    setInvalid(dt);
     return;
   }
 
@@ -3633,7 +3665,7 @@ function createFromString (dt, dateStr, formatStr, timezoneName) {
       : message[E_PARSE_ISO](dateStr);
 
     warn(msg);
-    setInvalid$$1(dt);
+    setInvalid(dt);
 
     return;
   }
@@ -3662,7 +3694,7 @@ function createFromInvalidArguments (dt, timezoneName, error, arg) {
 
   warn(message[error](arg));
 
-  setInvalid$$1(dt);
+  setInvalid(dt);
 }
 
 /**
@@ -4299,7 +4331,7 @@ function setUTCMillisecond (ms) {
  */
 function addDuration (dt, duration) {
   if (duration.isInvalid()) {
-    setInvalid$$1(dt);
+    setInvalid(dt);
     return dt;
   }
 
@@ -4343,7 +4375,7 @@ function addDuration (dt, duration) {
 function addInterval (inst, interval) {
   var value = interval.valueOf();
   if (!isFinite(value)) {
-    return setInvalid$$1(inst);
+    return setInvalid(inst);
   }
   return addTime(inst, value);
 }
@@ -4368,7 +4400,7 @@ function add (arg) {
   // Number
   if (isNumber(arg)) {
     if (!isFinite(arg)) {
-      return setInvalid$$1(dt);
+      return setInvalid(dt);
     }
     return addTime(dt, arg);
   }

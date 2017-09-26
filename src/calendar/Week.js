@@ -1,5 +1,8 @@
+import { updateValidity } from '../interval/Interval';
+
 import ACalendarInterval, { parseArgument } from './ACalendarInterval';
 import Day from './Day';
+
 import { getWeekOfYear } from './shared';
 import { extend, inherit } from '../utils';
 
@@ -18,11 +21,16 @@ inherit(ACalendarInterval, Week);
  * @param {String} [timezone]
  */
 function init (dt, timezone) {
-  this._start = parseArgument.apply(null, arguments);
-  this._start.setStartOfWeek();
+  const start = parseArgument.apply(null, arguments);
+  start.setStartOfWeek();
 
-  this._end = this._start.clone();
-  this._end.setDayOfMonth(this._start.getDayOfMonth() + 7);
+  const end = start.clone();
+  end.setDayOfMonth(start.getDayOfMonth() + 7);
+
+  this._start = start;
+  this._end = end;
+
+  updateValidity(this);
 }
 
 /**

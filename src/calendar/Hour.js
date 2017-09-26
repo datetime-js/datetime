@@ -1,3 +1,5 @@
+import { updateValidity } from '../interval/Interval';
+
 import ACalendarInterval, { parseArgument } from './ACalendarInterval';
 import Minute from './Minute';
 
@@ -24,11 +26,16 @@ inherit(ACalendarInterval, Hour);
  * @param {String} [timezone]
  */
 function init (dt, timezone) {
-  this._start = parseArgument.apply(null, arguments);
-  this._start.setStartOfHour();
+  const start = parseArgument.apply(null, arguments);
+  start.setStartOfHour();
 
-  this._end = this._start.clone();
-  this._end.add(HOUR_MS);
+  const end = start.clone();
+  end.add(HOUR_MS);
+
+  this._start = start;
+  this._end = end;
+
+  updateValidity(this);
 }
 
 /**

@@ -50,13 +50,7 @@ export const E_INVALID_ARGUMENT = 'E_INVALID_ARGUMENT';
 export const E_INVALID_ATTRIBUTE = 'E_INVALID_ATTRIBUTE';
 
 /** {string} */
-export const E_INVALID_INTERVAL_END = 'E_INVALID_INTERVAL_END';
-
-/** {string} */
 export const E_INVALID_INTERVAL_ORDER = 'E_INVALID_INTERVAL_ORDER';
-
-/** {string} */
-export const E_INVALID_INTERVAL_START = 'E_INVALID_INTERVAL_START';
 
 /** {string} */
 export const E_PARSE_FORMAT = 'E_PARSE_FORMAT';
@@ -74,11 +68,7 @@ export const message = {
 
   [E_INVALID_ATTRIBUTE]: () => 'At least one of the given date attributes is not a valid number',
 
-  [E_INVALID_INTERVAL_END]: arg => `Interval end "${arg}" cannot be parsed as a datetime`,
-
   [E_INVALID_INTERVAL_ORDER]: arg => 'Interval end cannot be earlier than interval start',
-
-  [E_INVALID_INTERVAL_START]: arg => `Interval start "${arg}" cannot not parsed as a datetime`,
 
   [E_PARSE_FORMAT]: (dateStr, format) => `String "${dateStr}" does not match to the given "${format}" format`,
 

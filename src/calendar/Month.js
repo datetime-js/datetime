@@ -1,5 +1,8 @@
+import { updateValidity } from '../interval/Interval';
+
 import ACalendarInterval, { parseArgument } from './ACalendarInterval';
 import Day from './Day';
+
 import { getMonth, getYear } from './shared';
 import { extend, inherit } from '../utils';
 
@@ -18,11 +21,16 @@ inherit(ACalendarInterval, Month);
  * @param {String} [timezone]
  */
 function init (dt, timezone) {
-  this._start = parseArgument.apply(null, arguments);
-  this._start.setStartOfMonth();
+  const start = parseArgument.apply(null, arguments);
+  start.setStartOfMonth();
 
-  this._end = this._start.clone();
-  this._end.setMonth(this._start.getMonth() + 1);
+  const end = start.clone();
+  end.setMonth(start.getMonth() + 1);
+
+  this._start = start;
+  this._end = end;
+
+  updateValidity(this);
 }
 
 /**

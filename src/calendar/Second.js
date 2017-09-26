@@ -1,3 +1,5 @@
+import { updateValidity } from '../interval/Interval';
+
 import ACalendarInterval, { parseArgument } from './ACalendarInterval';
 
 import {
@@ -24,11 +26,16 @@ inherit(ACalendarInterval, Second);
  * @param {String} [timezone]
  */
 function init (dt, timezone) {
-  this._start = parseArgument.apply(null, arguments);
-  this._start.setStartOfSecond();
+  const start = parseArgument.apply(null, arguments);
+  start.setStartOfSecond();
 
-  this._end = this._start.clone();
-  this._end.setSecond(this._start.getSecond() + 1);
+  const end = start.clone();
+  end.setSecond(start.getSecond() + 1);
+
+  this._start = start;
+  this._end = end;
+
+  updateValidity(this);
 }
 
 extend(Second.prototype, {
