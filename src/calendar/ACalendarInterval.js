@@ -7,10 +7,10 @@ import { extend, inherit } from '../utils';
  * @class
  * @abstract
  */
-export default function ACalendar (dt) {
+export default function ACalendarInterval (dt) {
 }
 
-inherit(Interval, ACalendar);
+inherit(Interval, ACalendarInterval);
 
 /**
  * ----------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ function toPrev () {
  * ----------------------------------------------------------------------------------------
  */
 
-extend(ACalendar.prototype, {
+extend(ACalendarInterval.prototype, {
   toNext,
   toPrev
 });

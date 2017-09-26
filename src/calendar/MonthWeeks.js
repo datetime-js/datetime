@@ -1,4 +1,4 @@
-import ACalendar, { parseArgument } from './ACalendar';
+import ACalendarInterval, { parseArgument } from './ACalendarInterval';
 import Week from './Week';
 import { extend, inherit } from '../utils';
 
@@ -10,7 +10,7 @@ export default function MonthWeeks () {
   init.apply(this, arguments);
 }
 
-inherit(ACalendar, MonthWeeks);
+inherit(ACalendarInterval, MonthWeeks);
 
 /**
  * @param {DateTime|String|Number|Array<Number>} dt

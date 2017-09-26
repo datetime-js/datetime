@@ -1,4 +1,4 @@
-import ACalendar, { parseArgument } from './ACalendar';
+import ACalendarInterval, { parseArgument } from './ACalendarInterval';
 import Day from './Day';
 import { getWeekOfYear } from './shared';
 import { extend, inherit } from '../utils';
@@ -11,7 +11,7 @@ export default function Week () {
   init.apply(this, arguments);
 }
 
-inherit(ACalendar, Week);
+inherit(ACalendarInterval, Week);
 
 /**
  * @param {DateTime|String|Number|Array<Number>} dt

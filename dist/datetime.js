@@ -466,10 +466,10 @@ extend(Interval.prototype, {
  * @class
  * @abstract
  */
-function ACalendar (dt) {
+function ACalendarInterval (dt) {
 }
 
-inherit(Interval, ACalendar);
+inherit(Interval, ACalendarInterval);
 
 /**
  * ----------------------------------------------------------------------------------------
@@ -529,7 +529,7 @@ function toPrev () {
  * ----------------------------------------------------------------------------------------
  */
 
-extend(ACalendar.prototype, {
+extend(ACalendarInterval.prototype, {
   toNext: toNext,
   toPrev: toPrev
 });
@@ -542,7 +542,7 @@ function Month () {
   init$4.apply(this, arguments);
 }
 
-inherit(ACalendar, Month);
+inherit(ACalendarInterval, Month);
 
 /**
  * @param {DateTime|String|Number|Array<Number>} dt
@@ -593,7 +593,7 @@ function Week () {
   init$6.apply(this, arguments);
 }
 
-inherit(ACalendar, Week);
+inherit(ACalendarInterval, Week);
 
 /**
  * @param {DateTime|String|Number|Array<Number>} dt
@@ -638,7 +638,7 @@ function MonthWeeks () {
   init$5.apply(this, arguments);
 }
 
-inherit(ACalendar, MonthWeeks);
+inherit(ACalendarInterval, MonthWeeks);
 
 /**
  * @param {DateTime|String|Number|Array<Number>} dt
@@ -692,7 +692,7 @@ function Year () {
   init$7.apply(this, arguments);
 }
 
-inherit(ACalendar, Year);
+inherit(ACalendarInterval, Year);
 
 /**
  * @param {DateTime|string|number|Array.<number>} dt
@@ -879,7 +879,7 @@ function Second () {
   init$3.apply(this, arguments);
 }
 
-inherit(ACalendar, Second);
+inherit(ACalendarInterval, Second);
 
 /**
  * @param {DateTime|String|Number|Array<Number>} dt
@@ -908,7 +908,7 @@ function Minute () {
   init$2.apply(this, arguments);
 }
 
-inherit(ACalendar, Minute);
+inherit(ACalendarInterval, Minute);
 
 /**
  * @param {DateTime|String|Number|Array<Number>} dt
@@ -958,7 +958,7 @@ function Hour () {
   init$1.apply(this, arguments);
 }
 
-inherit(ACalendar, Hour);
+inherit(ACalendarInterval, Hour);
 
 /**
  * @param {DateTime|String|Number|Array<Number>} dt
@@ -1010,7 +1010,7 @@ function Day () {
   init.apply(this, arguments);
 }
 
-inherit(ACalendar, Day);
+inherit(ACalendarInterval, Day);
 
 /**
  * @param {DateTime|String|Number|Array<Number>} dt

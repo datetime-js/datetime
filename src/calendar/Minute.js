@@ -1,4 +1,4 @@
-import ACalendar, { parseArgument } from './ACalendar';
+import ACalendarInterval, { parseArgument } from './ACalendarInterval';
 import Second from './Second';
 
 import {
@@ -17,7 +17,7 @@ export default function Minute () {
   init.apply(this, arguments);
 }
 
-inherit(ACalendar, Minute);
+inherit(ACalendarInterval, Minute);
 
 /**
  * @param {DateTime|String|Number|Array<Number>} dt

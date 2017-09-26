@@ -1,4 +1,4 @@
-import ACalendar, { parseArgument } from './ACalendar';
+import ACalendarInterval, { parseArgument } from './ACalendarInterval';
 import Month from './Month';
 import MonthWeeks from './MonthWeeks';
 import { getYear, isLeap } from './shared';
@@ -12,7 +12,7 @@ export default function Year () {
   init.apply(this, arguments);
 }
 
-inherit(ACalendar, Year);
+inherit(ACalendarInterval, Year);
 
 /**
  * @param {DateTime|string|number|Array.<number>} dt
