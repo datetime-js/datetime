@@ -6,4 +6,4 @@ npm-debug.log
 coverage/
 node_modules/
 
-test/full/spec/reference/
+test/e2e/spec/reference/
