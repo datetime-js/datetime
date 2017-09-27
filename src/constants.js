@@ -63,12 +63,12 @@ export const E_RANGE = 'E_RANGE';
 
 /** {Object} */
 export const message = {
-  [E_INVALID_ARGUMENT]: arg => `${arg} is not a valid argument. Argument must be a string, ` +
+  [E_INVALID_ARGUMENT]: arg => `${String(arg)} is not a valid argument. Argument must be a string, ` +
     'or a number, or an array, or another instance of DateTime',
 
   [E_INVALID_ATTRIBUTE]: () => 'At least one of the given date attributes is not a valid number',
 
-  [E_INVALID_INTERVAL_ORDER]: arg => 'Interval end cannot be earlier than interval start',
+  [E_INVALID_INTERVAL_ORDER]: () => 'Interval end cannot be earlier than interval start',
 
   [E_PARSE_FORMAT]: (dateStr, format) => `String "${dateStr}" does not match to the given "${format}" format`,
 

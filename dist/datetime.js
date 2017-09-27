@@ -1,6 +1,6 @@
 /**
  * datetime2
- * Version: 2.0.5
+ * Version: 2.0.6
  * Author: Dmitry Shimkin <dmitryshimkin@gmail.com>
  * License: MIT
  * https://github.com/datetime-js/datetime
@@ -76,10 +76,10 @@ var E_RANGE = 'E_RANGE';
 
 /** {Object} */
 var message = {};
-message[E_INVALID_ARGUMENT] = function (arg) { return arg + " is not a valid argument. Argument must be a string, " +
+message[E_INVALID_ARGUMENT] = function (arg) { return (String(arg)) + " is not a valid argument. Argument must be a string, " +
     'or a number, or an array, or another instance of DateTime'; };
 message[E_INVALID_ATTRIBUTE] = function () { return 'At least one of the given date attributes is not a valid number'; };
-message[E_INVALID_INTERVAL_ORDER] = function (arg) { return 'Interval end cannot be earlier than interval start'; };
+message[E_INVALID_INTERVAL_ORDER] = function () { return 'Interval end cannot be earlier than interval start'; };
 message[E_PARSE_FORMAT] = function (dateStr, format) { return ("String \"" + dateStr + "\" does not match to the given \"" + format + "\" format"); };
 message[E_PARSE_ISO] = function (dateStr) { return ("String \"" + dateStr + "\" is not a valid ISO-8601 date"); };
 message[E_RANGE] = function (arg) { return "Timestamp " + arg + " is too big. It must be in a range of " +
