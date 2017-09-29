@@ -1,6 +1,6 @@
 /**
  * datetime2
- * Version: 2.0.6
+ * Version: 2.0.7
  * Author: Dmitry Shimkin <dmitryshimkin@gmail.com>
  * License: MIT
  * https://github.com/datetime-js/datetime
@@ -66,6 +66,9 @@ var E_INVALID_ATTRIBUTE = 'E_INVALID_ATTRIBUTE';
 var E_INVALID_INTERVAL_ORDER = 'E_INVALID_INTERVAL_ORDER';
 
 /** {string} */
+var E_INVALID_SETTER_ATTRIBUTE = 'E_INVALID_SETTER_ATTRIBUTE';
+
+/** {string} */
 var E_PARSE_FORMAT = 'E_PARSE_FORMAT';
 
 /** {string} */
@@ -80,6 +83,7 @@ message[E_INVALID_ARGUMENT] = function (arg) { return (String(arg)) + " is not a
     'or a number, or an array, or another instance of DateTime'; };
 message[E_INVALID_ATTRIBUTE] = function () { return 'At least one of the given date attributes is not a valid number'; };
 message[E_INVALID_INTERVAL_ORDER] = function () { return 'Interval end cannot be earlier than interval start'; };
+message[E_INVALID_SETTER_ATTRIBUTE] = function (arg) { return ((String(arg)) + " is not a valid argument. Argument must be a number."); };
 message[E_PARSE_FORMAT] = function (dateStr, format) { return ("String \"" + dateStr + "\" does not match to the given \"" + format + "\" format"); };
 message[E_PARSE_ISO] = function (dateStr) { return ("String \"" + dateStr + "\" is not a valid ISO-8601 date"); };
 message[E_RANGE] = function (arg) { return "Timestamp " + arg + " is too big. It must be in a range of " +
@@ -216,7 +220,7 @@ function includes (arg) {
     return includesDateTime(this, arg);
   }
 
-  if (isNumber(arg)) {
+  if (isFiniteNumber(arg)) {
     return includesTimestamp(this, arg);
   }
 
@@ -1899,6 +1903,15 @@ function isNumber (arg) {
 }
 
 /**
+ * @param {*} arg
+ * @returns {boolean}
+ * @inner
+ */
+function isFiniteNumber (arg) {
+  return isNumber(arg) && isFinite(arg);
+}
+
+/**
  * @param {DateTime} dt1
  * @param {DateTime} dt2
  * @returns {boolean}
@@ -2010,7 +2023,7 @@ function leftPad (str, len) {
 function validateDateAttributes (dateAttrs) {
   var idx = dateAttrs.length;
   while (idx--) {
-    if (!isNumber(dateAttrs[idx]) || !isFinite(dateAttrs[idx])) {
+    if (!isFiniteNumber(dateAttrs[idx])) {
       return false;
     }
   }
@@ -2165,8 +2178,13 @@ function normalizeDateAttributes (givenDateAttrs) {
 function setDateAttribute (dt, attrIndex, value) {
   var dateAttrs = getDateAttributes(dt);
 
-  dateAttrs[attrIndex] = value;
+  if (!isFiniteNumber(value)) {
+    warn(message[E_INVALID_SETTER_ATTRIBUTE](value));
+    setInvalid(dt);
+    return;
+  }
 
+  dateAttrs[attrIndex] = value;
   setDateAttributes(dt, dateAttrs);
 }
 
@@ -2437,7 +2455,7 @@ var hasOwnProperty = locales.hasOwnProperty;
  * @inner
  */
 function testNow (nowFn) {
-  return isNumber(nowFn()) && !isNaN(nowFn());
+  return isFiniteNumber(nowFn());
 }
 
 /**
@@ -3721,7 +3739,7 @@ function DateTime$2 (arg0, arg1, arg2) {
     var timestamp = noargs ? now() : arg0;
 
     // Handle invalid number
-    if (!isFinite(timestamp)) {
+    if (!isFiniteNumber(timestamp)) {
       return createFromInvalidArguments(dt, timezoneName, E_INVALID_ARGUMENT, timestamp);
     }
 
@@ -4123,7 +4141,7 @@ function setTime (timestamp) {
  * @public
  */
 function setWeek (week) {
-  if (!isNumber(week)) {
+  if (!isFiniteNumber(week)) {
     throw new Error('Invalid parameter');
   }
 
@@ -4374,7 +4392,7 @@ function addDuration (dt, duration) {
  */
 function addInterval (inst, interval) {
   var value = interval.valueOf();
-  if (!isFinite(value)) {
+  if (!isFiniteNumber(value)) {
     return setInvalid(inst);
   }
   return addTime(inst, value);
@@ -4399,7 +4417,7 @@ function add (arg) {
 
   // Number
   if (isNumber(arg)) {
-    if (!isFinite(arg)) {
+    if (!isFiniteNumber(arg)) {
       return setInvalid(dt);
     }
     return addTime(dt, arg);

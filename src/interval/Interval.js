@@ -6,7 +6,7 @@ import {
   extend,
   isDateTime,
   isInterval,
-  isNumber,
+  isFiniteNumber,
   warn
 } from '../utils';
 
@@ -123,7 +123,7 @@ function includes (arg) {
     return includesDateTime(this, arg);
   }
 
-  if (isNumber(arg)) {
+  if (isFiniteNumber(arg)) {
     return includesTimestamp(this, arg);
   }
 

@@ -3,7 +3,7 @@
  * Settings
  * -------------------------------------------------------------------------------------
  */
-import { isNumber } from './utils';
+import { isFiniteNumber } from './utils';
 
 let tzdata = null;
 let defaultTimezone = 'UTC';
@@ -19,7 +19,7 @@ const hasOwnProperty = locales.hasOwnProperty;
  * @inner
  */
 function testNow (nowFn) {
-  return isNumber(nowFn()) && !isNaN(nowFn());
+  return isFiniteNumber(nowFn());
 }
 
 /**

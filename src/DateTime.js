@@ -38,6 +38,7 @@ import {
   isDateTimeWeekend,
   isDay,
   isDuration,
+  isFiniteNumber,
   isHour,
   isInterval,
   isLeapYear,
@@ -293,7 +294,7 @@ function DateTime (arg0, arg1, arg2) {
     const timestamp = noargs ? now() : arg0;
 
     // Handle invalid number
-    if (!isFinite(timestamp)) {
+    if (!isFiniteNumber(timestamp)) {
       return createFromInvalidArguments(dt, timezoneName, E_INVALID_ARGUMENT, timestamp);
     }
 
@@ -695,7 +696,7 @@ function setTime (timestamp) {
  * @public
  */
 function setWeek (week) {
-  if (!isNumber(week)) {
+  if (!isFiniteNumber(week)) {
     throw new Error('Invalid parameter');
   }
 
@@ -946,7 +947,7 @@ function addDuration (dt, duration) {
  */
 function addInterval (inst, interval) {
   const value = interval.valueOf();
-  if (!isFinite(value)) {
+  if (!isFiniteNumber(value)) {
     return setInvalid(inst);
   }
   return addTime(inst, value);
@@ -971,7 +972,7 @@ function add (arg) {
 
   // Number
   if (isNumber(arg)) {
-    if (!isFinite(arg)) {
+    if (!isFiniteNumber(arg)) {
       return setInvalid(dt);
     }
     return addTime(dt, arg);

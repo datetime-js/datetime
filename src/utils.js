@@ -11,18 +11,20 @@ import Duration from './duration/Duration';
 import Interval from './interval/Interval';
 
 import {
+  E_INVALID_SETTER_ATTRIBUTE,
   EPOCH_START,
   SECOND_MS,
   MINUTE_MS,
   HOUR_MS,
   DAY_MS,
   YEAR_MS,
+  LEAP_MONTH_POINTS,
   LEAP_YEAR_MS,
   MAX_TIMESTAMP_VALUE,
   MIN_TIMESTAMP_VALUE,
   MONTH_MS,
   MONTH_POINTS,
-  LEAP_MONTH_POINTS
+  message
 } from './constants';
 
 import { getNow, getTzdata } from './settings';
@@ -609,6 +611,15 @@ export function isNumber (arg) {
 }
 
 /**
+ * @param {*} arg
+ * @returns {boolean}
+ * @inner
+ */
+export function isFiniteNumber (arg) {
+  return isNumber(arg) && isFinite(arg);
+}
+
+/**
  * @param {DateTime} dt1
  * @param {DateTime} dt2
  * @returns {boolean}
@@ -720,7 +731,7 @@ export function leftPad (str, len) {
 export function validateDateAttributes (dateAttrs) {
   let idx = dateAttrs.length;
   while (idx--) {
-    if (!isNumber(dateAttrs[idx]) || !isFinite(dateAttrs[idx])) {
+    if (!isFiniteNumber(dateAttrs[idx])) {
       return false;
     }
   }
@@ -875,8 +886,13 @@ export function normalizeDateAttributes (givenDateAttrs) {
 export function setDateAttribute (dt, attrIndex, value) {
   const dateAttrs = getDateAttributes(dt);
 
-  dateAttrs[attrIndex] = value;
+  if (!isFiniteNumber(value)) {
+    warn(message[E_INVALID_SETTER_ATTRIBUTE](value));
+    setInvalid(dt);
+    return;
+  }
 
+  dateAttrs[attrIndex] = value;
   setDateAttributes(dt, dateAttrs);
 }
 
