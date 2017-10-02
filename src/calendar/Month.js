@@ -17,10 +17,10 @@ export default function Month () {
 inherit(ACalendarInterval, Month);
 
 /**
- * @param {DateTime|String|Number|Array<Number>} dt
- * @param {String} [timezone]
+ * @param {DateTime|string|number|Array.<number>} dt
+ * @param {string} [timezoneName]
  */
-function init (dt, timezone) {
+function init (dt, timezoneName) {
   const start = parseArgument.apply(null, arguments);
   start.setStartOfMonth();
 

@@ -1,6 +1,7 @@
 import {
   E_INVALID_ARGUMENT,
   E_INVALID_ATTRIBUTE,
+  E_INVALID_TIMEZONE,
   E_PARSE_FORMAT,
   E_PARSE_ISO,
   E_RANGE,
@@ -49,6 +50,7 @@ import {
   isSecond,
   isString,
   isValidTimestamp,
+  isValidTimezone,
   isWeek,
   isYear,
   normalizeDateAttributes,
@@ -288,6 +290,11 @@ function DateTime (arg0, arg1, arg2) {
   }
 
   timezoneName = timezoneName || getDefaultTimezone();
+
+  if (!isValidTimezone(timezoneName)) {
+    warn(message[E_INVALID_TIMEZONE](timezoneName));
+    timezoneName = getDefaultTimezone();
+  }
 
   // Create from timestamp
   if (noargs || isNumber(arg0)) {

@@ -34,9 +34,9 @@ inherit(ACalendarInterval, Day);
 
 /**
  * @param {DateTime|String|Number|Array<Number>} dt
- * @param {String} [timezone]
+ * @param {String} [timezoneName]
  */
-function init (dt, timezone) {
+function init (dt, timezoneName) {
   const start = parseArgument.apply(null, arguments);
   start.setStartOfDay();
 

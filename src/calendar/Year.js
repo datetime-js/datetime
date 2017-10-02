@@ -17,9 +17,9 @@ inherit(ACalendarInterval, Year);
 
 /**
  * @param {DateTime|string|number|Array.<number>} dt
- * @param {string} [timezone]
+ * @param {string} [timezoneName]
  */
-function init (dt, timezone) {
+function init (dt, timezoneName) {
   const start = parseArgument.apply(null, arguments);
   start.setStartOfYear();
 

@@ -56,6 +56,9 @@ export const E_INVALID_INTERVAL_ORDER = 'E_INVALID_INTERVAL_ORDER';
 export const E_INVALID_SETTER_ATTRIBUTE = 'E_INVALID_SETTER_ATTRIBUTE';
 
 /** {string} */
+export const E_INVALID_TIMEZONE = 'E_INVALID_TIMEZONE';
+
+/** {string} */
 export const E_PARSE_FORMAT = 'E_PARSE_FORMAT';
 
 /** {string} */
@@ -74,6 +77,8 @@ export const message = {
   [E_INVALID_INTERVAL_ORDER]: () => 'Interval end cannot be earlier than interval start',
 
   [E_INVALID_SETTER_ATTRIBUTE]: arg => `${String(arg)} is not a valid argument. Argument must be a number.`,
+
+  [E_INVALID_TIMEZONE]: timezoneName => `Cannot find tzdata for timezone "${String(timezoneName)}", so fallback to UTC`,
 
   [E_PARSE_FORMAT]: (dateStr, format) => `String "${dateStr}" does not match to the given "${format}" format`,
 

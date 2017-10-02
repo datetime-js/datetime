@@ -19,12 +19,12 @@ inherit(Interval, ACalendarInterval);
  */
 
 /**
- * @param {DateTime|String|Number|Array<Number>} dt
- * @param {String} [timezone]
+ * @param {DateTime|string|number|Array.<number>} dt
+ * @param {string} [timezoneName]
  * @returns {DateTime}
  * @inner
  */
-export function parseArgument (dt, timezone) {
+export function parseArgument (dt, timezoneName) {
   const argsCount = arguments.length;
 
   if (argsCount === 0) {
@@ -35,7 +35,7 @@ export function parseArgument (dt, timezone) {
     return new DateTime(dt);
   }
 
-  return new DateTime(dt, timezone);
+  return new DateTime(dt, timezoneName);
 }
 
 /**

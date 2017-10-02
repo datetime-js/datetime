@@ -1099,6 +1099,15 @@ export function inherit (Parent, Child) {
 }
 
 /**
+ * @param {string} timezoneName
+ * @returns {boolean}
+ * @inner
+ */
+export function isValidTimezone (timezoneName) {
+  return Object.prototype.hasOwnProperty.call(getTzdata().zones, timezoneName);
+}
+
+/**
  * Trims the given string
  * @param {string} str
  * @returns {string}

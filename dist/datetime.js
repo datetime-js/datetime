@@ -1,6 +1,6 @@
 /**
  * datetime2
- * Version: 2.0.7
+ * Version: 2.0.8
  * Author: Dmitry Shimkin <dmitryshimkin@gmail.com>
  * License: MIT
  * https://github.com/datetime-js/datetime
@@ -69,6 +69,9 @@ var E_INVALID_INTERVAL_ORDER = 'E_INVALID_INTERVAL_ORDER';
 var E_INVALID_SETTER_ATTRIBUTE = 'E_INVALID_SETTER_ATTRIBUTE';
 
 /** {string} */
+var E_INVALID_TIMEZONE = 'E_INVALID_TIMEZONE';
+
+/** {string} */
 var E_PARSE_FORMAT = 'E_PARSE_FORMAT';
 
 /** {string} */
@@ -84,6 +87,7 @@ message[E_INVALID_ARGUMENT] = function (arg) { return (String(arg)) + " is not a
 message[E_INVALID_ATTRIBUTE] = function () { return 'At least one of the given date attributes is not a valid number'; };
 message[E_INVALID_INTERVAL_ORDER] = function () { return 'Interval end cannot be earlier than interval start'; };
 message[E_INVALID_SETTER_ATTRIBUTE] = function (arg) { return ((String(arg)) + " is not a valid argument. Argument must be a number."); };
+message[E_INVALID_TIMEZONE] = function (timezoneName) { return ("Cannot find tzdata for timezone \"" + (String(timezoneName)) + "\", so fallback to UTC"); };
 message[E_PARSE_FORMAT] = function (dateStr, format) { return ("String \"" + dateStr + "\" does not match to the given \"" + format + "\" format"); };
 message[E_PARSE_ISO] = function (dateStr) { return ("String \"" + dateStr + "\" is not a valid ISO-8601 date"); };
 message[E_RANGE] = function (arg) { return "Timestamp " + arg + " is too big. It must be in a range of " +
@@ -475,12 +479,12 @@ inherit(Interval, ACalendarInterval);
  */
 
 /**
- * @param {DateTime|String|Number|Array<Number>} dt
- * @param {String} [timezone]
+ * @param {DateTime|string|number|Array.<number>} dt
+ * @param {string} [timezoneName]
  * @returns {DateTime}
  * @inner
  */
-function parseArgument (dt, timezone) {
+function parseArgument (dt, timezoneName) {
   var argsCount = arguments.length;
 
   if (argsCount === 0) {
@@ -491,7 +495,7 @@ function parseArgument (dt, timezone) {
     return new DateTime$2(dt);
   }
 
-  return new DateTime$2(dt, timezone);
+  return new DateTime$2(dt, timezoneName);
 }
 
 /**
@@ -542,10 +546,10 @@ function Month () {
 inherit(ACalendarInterval, Month);
 
 /**
- * @param {DateTime|String|Number|Array<Number>} dt
- * @param {String} [timezone]
+ * @param {DateTime|string|number|Array.<number>} dt
+ * @param {string} [timezoneName]
  */
-function init$4 (dt, timezone) {
+function init$4 (dt, timezoneName) {
   var start = parseArgument.apply(null, arguments);
   start.setStartOfMonth();
 
@@ -598,10 +602,10 @@ function Week () {
 inherit(ACalendarInterval, Week);
 
 /**
- * @param {DateTime|String|Number|Array<Number>} dt
- * @param {String} [timezone]
+ * @param {DateTime|string|number|Array.<number>} dt
+ * @param {string} [timezoneName]
  */
-function init$6 (dt, timezone) {
+function init$6 (dt, timezoneName) {
   var start = parseArgument.apply(null, arguments);
   start.setStartOfWeek();
 
@@ -648,10 +652,10 @@ function MonthWeeks () {
 inherit(ACalendarInterval, MonthWeeks);
 
 /**
- * @param {DateTime|String|Number|Array<Number>} dt
- * @param {String} [timezone]
+ * @param {DateTime|string|number|Array.<number>} dt
+ * @param {string} [timezoneName]
  */
-function init$5 (dt, timezone) {
+function init$5 (dt, timezoneName) {
   var start = parseArgument.apply(null, arguments);
   var end = start.clone();
 
@@ -707,9 +711,9 @@ inherit(ACalendarInterval, Year);
 
 /**
  * @param {DateTime|string|number|Array.<number>} dt
- * @param {string} [timezone]
+ * @param {string} [timezoneName]
  */
-function init$7 (dt, timezone) {
+function init$7 (dt, timezoneName) {
   var start = parseArgument.apply(null, arguments);
   start.setStartOfYear();
 
@@ -898,10 +902,10 @@ function Second () {
 inherit(ACalendarInterval, Second);
 
 /**
- * @param {DateTime|String|Number|Array<Number>} dt
- * @param {String} [timezone]
+ * @param {DateTime|string|number|Array.<number>} dt
+ * @param {string} [timezoneName]
  */
-function init$3 (dt, timezone) {
+function init$3 (dt, timezoneName) {
   var start = parseArgument.apply(null, arguments);
   start.setStartOfSecond();
 
@@ -932,10 +936,10 @@ function Minute () {
 inherit(ACalendarInterval, Minute);
 
 /**
- * @param {DateTime|String|Number|Array<Number>} dt
- * @param {String} [timezone]
+ * @param {DateTime|string|number|Array.<number>} dt
+ * @param {String} [timezoneName]
  */
-function init$2 (dt, timezone) {
+function init$2 (dt, timezoneName) {
   var start = parseArgument.apply(null, arguments);
   start.setStartOfMinute();
 
@@ -987,10 +991,10 @@ function Hour () {
 inherit(ACalendarInterval, Hour);
 
 /**
- * @param {DateTime|String|Number|Array<Number>} dt
- * @param {String} [timezone]
+ * @param {DateTime|string|number|Array.<number>} dt
+ * @param {string} [timezoneName]
  */
-function init$1 (dt, timezone) {
+function init$1 (dt, timezoneName) {
   var start = parseArgument.apply(null, arguments);
   start.setStartOfHour();
 
@@ -1045,9 +1049,9 @@ inherit(ACalendarInterval, Day);
 
 /**
  * @param {DateTime|String|Number|Array<Number>} dt
- * @param {String} [timezone]
+ * @param {String} [timezoneName]
  */
-function init (dt, timezone) {
+function init (dt, timezoneName) {
   var start = parseArgument.apply(null, arguments);
   start.setStartOfDay();
 
@@ -2388,6 +2392,15 @@ function inherit (Parent, Child) {
   TempCtor.prototype = Parent.prototype;
   Child.prototype = new TempCtor();
   Child.prototype.constructor = Child;
+}
+
+/**
+ * @param {string} timezoneName
+ * @returns {boolean}
+ * @inner
+ */
+function isValidTimezone (timezoneName) {
+  return Object.prototype.hasOwnProperty.call(getTzdata().zones, timezoneName);
 }
 
 /**
@@ -3733,6 +3746,11 @@ function DateTime$2 (arg0, arg1, arg2) {
   }
 
   timezoneName = timezoneName || getDefaultTimezone();
+
+  if (!isValidTimezone(timezoneName)) {
+    warn(message[E_INVALID_TIMEZONE](timezoneName));
+    timezoneName = getDefaultTimezone();
+  }
 
   // Create from timestamp
   if (noargs || isNumber(arg0)) {
