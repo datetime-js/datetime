@@ -351,11 +351,11 @@ export function getDateUTCAttributes (dt) {
 }
 
 /**
- * @param {string} tzName
+ * @param {string} timezoneName
  * @inner
  */
-export function getZoneTzdata (tzName) {
-  const zoneTzdata = getTzdata().zones[tzName];
+export function getTzdataFor (timezoneName) {
+  const zoneTzdata = getTzdata().zones[timezoneName];
   if (!zoneTzdata.ambiguous) {
     zoneTzdata.ambiguous = getAmbiguousIntervals(zoneTzdata);
   }

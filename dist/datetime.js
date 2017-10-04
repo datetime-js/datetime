@@ -1,6 +1,6 @@
 /**
  * datetime2
- * Version: 2.0.8
+ * Version: 2.0.9
  * Author: Dmitry Shimkin <dmitryshimkin@gmail.com>
  * License: MIT
  * https://github.com/datetime-js/datetime
@@ -1649,11 +1649,11 @@ function getDateUTCAttributes (dt) {
 }
 
 /**
- * @param {string} tzName
+ * @param {string} timezoneName
  * @inner
  */
-function getZoneTzdata (tzName) {
-  var zoneTzdata = getTzdata().zones[tzName];
+function getTzdataFor (timezoneName) {
+  var zoneTzdata = getTzdata().zones[timezoneName];
   if (!zoneTzdata.ambiguous) {
     zoneTzdata.ambiguous = getAmbiguousIntervals(zoneTzdata);
   }
@@ -2560,6 +2560,14 @@ function getNow () {
  */
 function getTzdata () {
   return tzdata;
+}
+
+/**
+ * @returns {boolean}
+ * @public
+ */
+function isTzdataSet () {
+  return Boolean(tzdata);
 }
 
 /**
@@ -3593,7 +3601,7 @@ function createFromTimestamp (dt, timestamp, timezoneName) {
   dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezoneName);
+  dt.tzdata = getTzdataFor(timezoneName);
 
   // Timestamp
   dt.timestamp = timestamp;
@@ -3622,7 +3630,7 @@ function createFromAttributes (dt, dateAttrs, offset, timezoneName) {
   dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezoneName);
+  dt.tzdata = getTzdataFor(timezoneName);
 
   if (!validateDateAttributes(dateAttrs)) {
     warn(message[E_INVALID_ATTRIBUTE]());
@@ -3650,7 +3658,7 @@ function createFromAttributesSafe (dt, dateAttrs, offset, timezoneName, preferLa
   dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezoneName);
+  dt.tzdata = getTzdataFor(timezoneName);
 
   // Attributes
   var givenAttrs = copyArray(dateAttrs);
@@ -3685,7 +3693,7 @@ function createFromString (dt, dateStr, formatStr, timezoneName) {
   dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezoneName);
+  dt.tzdata = getTzdataFor(timezoneName);
 
   // Attributes
   var dateAttrs = formatStr ? parseWithFormat(dateStr, formatStr, timezoneName) : parse(dateStr);
@@ -3721,7 +3729,7 @@ function createFromInvalidArguments (dt, timezoneName, error, arg) {
   dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezoneName);
+  dt.tzdata = getTzdataFor(timezoneName);
 
   warn(message[error](arg));
 
@@ -3746,6 +3754,10 @@ function DateTime$2 (arg0, arg1, arg2) {
   }
 
   timezoneName = timezoneName || getDefaultTimezone();
+
+  if (!isTzdataSet()) {
+    throw new Error('Tzdata must be set prior to using DateTime');
+  }
 
   if (!isValidTimezone(timezoneName)) {
     warn(message[E_INVALID_TIMEZONE](timezoneName));

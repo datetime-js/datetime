@@ -17,6 +17,7 @@ import {
   getDefaultTimezone,
   getLocale,
   getLocaleData,
+  isTzdataSet,
   setDefaultTimezone,
   setLocale,
   setTzdata,
@@ -30,7 +31,7 @@ import {
   extend,
   getDateUTCAttributes,
   getTimestampFromAttrs,
-  getZoneTzdata,
+  getTzdataFor,
   getTzrule,
   isArrayLike,
   isDateAmbiguousLate,
@@ -139,7 +140,7 @@ function createFromTimestamp (dt, timestamp, timezoneName) {
   dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezoneName);
+  dt.tzdata = getTzdataFor(timezoneName);
 
   // Timestamp
   dt.timestamp = timestamp;
@@ -168,7 +169,7 @@ function createFromAttributes (dt, dateAttrs, offset, timezoneName) {
   dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezoneName);
+  dt.tzdata = getTzdataFor(timezoneName);
 
   if (!validateDateAttributes(dateAttrs)) {
     warn(message[E_INVALID_ATTRIBUTE]());
@@ -194,7 +195,7 @@ function createFromAttributesSafe (dt, dateAttrs, offset, timezoneName, preferLa
   dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezoneName);
+  dt.tzdata = getTzdataFor(timezoneName);
 
   // Attributes
   const givenAttrs = copyArray(dateAttrs);
@@ -229,7 +230,7 @@ function createFromString (dt, dateStr, formatStr, timezoneName) {
   dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezoneName);
+  dt.tzdata = getTzdataFor(timezoneName);
 
   // Attributes
   const dateAttrs = formatStr ? parseWithFormat(dateStr, formatStr, timezoneName) : parse(dateStr);
@@ -265,7 +266,7 @@ function createFromInvalidArguments (dt, timezoneName, error, arg) {
   dt.timezone = timezoneName;
 
   // Timezone tzdata
-  dt.tzdata = getZoneTzdata(timezoneName);
+  dt.tzdata = getTzdataFor(timezoneName);
 
   warn(message[error](arg));
 
@@ -290,6 +291,10 @@ function DateTime (arg0, arg1, arg2) {
   }
 
   timezoneName = timezoneName || getDefaultTimezone();
+
+  if (!isTzdataSet()) {
+    throw new Error('Tzdata must be set prior to using DateTime');
+  }
 
   if (!isValidTimezone(timezoneName)) {
     warn(message[E_INVALID_TIMEZONE](timezoneName));

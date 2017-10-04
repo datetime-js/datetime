@@ -114,6 +114,14 @@ export function getTzdata () {
 }
 
 /**
+ * @returns {boolean}
+ * @public
+ */
+export function isTzdataSet () {
+  return Boolean(tzdata);
+}
+
+/**
  * @param {Object} newTzdata
  * @public
  */
