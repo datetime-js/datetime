@@ -1,6 +1,6 @@
 /**
  * datetime2
- * Version: 2.0.9
+ * Version: 2.0.10
  * Author: Dmitry Shimkin <dmitryshimkin@gmail.com>
  * License: MIT
  * https://github.com/datetime-js/datetime
@@ -69,6 +69,9 @@ var E_INVALID_INTERVAL_ORDER = 'E_INVALID_INTERVAL_ORDER';
 var E_INVALID_SETTER_ATTRIBUTE = 'E_INVALID_SETTER_ATTRIBUTE';
 
 /** {string} */
+var E_INVALID_TZDATA = 'E_INVALID_TZDATA';
+
+/** {string} */
 var E_INVALID_TIMEZONE = 'E_INVALID_TIMEZONE';
 
 /** {string} */
@@ -88,6 +91,7 @@ message[E_INVALID_ATTRIBUTE] = function () { return 'At least one of the given d
 message[E_INVALID_INTERVAL_ORDER] = function () { return 'Interval end cannot be earlier than interval start'; };
 message[E_INVALID_SETTER_ATTRIBUTE] = function (arg) { return ((String(arg)) + " is not a valid argument. Argument must be a number."); };
 message[E_INVALID_TIMEZONE] = function (timezoneName) { return ("Cannot find tzdata for timezone \"" + (String(timezoneName)) + "\", so fallback to UTC"); };
+message[E_INVALID_TZDATA] = function (tzdata) { return ((String(tzdata)) + " is not a valid tzdata"); };
 message[E_PARSE_FORMAT] = function (dateStr, format) { return ("String \"" + dateStr + "\" does not match to the given \"" + format + "\" format"); };
 message[E_PARSE_ISO] = function (dateStr) { return ("String \"" + dateStr + "\" is not a valid ISO-8601 date"); };
 message[E_RANGE] = function (arg) { return "Timestamp " + arg + " is too big. It must be in a range of " +
@@ -1817,7 +1821,7 @@ function isLeapYear (year) {
  * @inner
  */
 function isArrayLike (arg) {
-  return arg !== null && typeof arg === 'object' && typeof arg.length === 'number';
+  return isObject(arg) && typeof arg.length === 'number';
 }
 
 /**
@@ -1913,6 +1917,14 @@ function isNumber (arg) {
  */
 function isFiniteNumber (arg) {
   return isNumber(arg) && isFinite(arg);
+}
+
+/**
+ * @param {*} arg
+ * @returns {boolean}
+ */
+function isObject (arg) {
+  return typeof arg === 'object' && arg !== null;
 }
 
 /**
@@ -2404,6 +2416,14 @@ function isValidTimezone (timezoneName) {
 }
 
 /**
+ * @param {Object} tzdata
+ * @returns {boolean}
+ */
+function isValidTzdata (tzdata) {
+  return isObject(tzdata) && isString(tzdata.version) && isObject(tzdata.zones);
+}
+
+/**
  * Trims the given string
  * @param {string} str
  * @returns {string}
@@ -2575,6 +2595,10 @@ function isTzdataSet () {
  * @public
  */
 function setTzdata (newTzdata) {
+  if (!isValidTzdata(newTzdata)) {
+    warn(message[E_INVALID_TZDATA](newTzdata));
+    return;
+  }
   tzdata = newTzdata;
 }
 

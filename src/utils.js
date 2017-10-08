@@ -519,7 +519,7 @@ export function isLeapYear (year) {
  * @inner
  */
 export function isArrayLike (arg) {
-  return arg !== null && typeof arg === 'object' && typeof arg.length === 'number';
+  return isObject(arg) && typeof arg.length === 'number';
 }
 
 /**
@@ -617,6 +617,14 @@ export function isNumber (arg) {
  */
 export function isFiniteNumber (arg) {
   return isNumber(arg) && isFinite(arg);
+}
+
+/**
+ * @param {*} arg
+ * @returns {boolean}
+ */
+export function isObject (arg) {
+  return typeof arg === 'object' && arg !== null;
 }
 
 /**
@@ -1105,6 +1113,14 @@ export function inherit (Parent, Child) {
  */
 export function isValidTimezone (timezoneName) {
   return Object.prototype.hasOwnProperty.call(getTzdata().zones, timezoneName);
+}
+
+/**
+ * @param {Object} tzdata
+ * @returns {boolean}
+ */
+export function isValidTzdata (tzdata) {
+  return isObject(tzdata) && isString(tzdata.version) && isObject(tzdata.zones);
 }
 
 /**

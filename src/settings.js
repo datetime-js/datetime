@@ -3,7 +3,16 @@
  * Settings
  * -------------------------------------------------------------------------------------
  */
-import { isFiniteNumber } from './utils';
+import {
+  isFiniteNumber,
+  isValidTzdata,
+  warn
+} from './utils';
+
+import {
+  E_INVALID_TZDATA,
+  message
+} from './constants';
 
 let tzdata = null;
 let defaultTimezone = 'UTC';
@@ -126,6 +135,10 @@ export function isTzdataSet () {
  * @public
  */
 export function setTzdata (newTzdata) {
+  if (!isValidTzdata(newTzdata)) {
+    warn(message[E_INVALID_TZDATA](newTzdata));
+    return;
+  }
   tzdata = newTzdata;
 }
 
