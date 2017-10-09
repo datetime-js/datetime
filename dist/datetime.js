@@ -1,6 +1,6 @@
 /**
  * datetime2
- * Version: 2.0.10
+ * Version: 2.0.11
  * Author: Dmitry Shimkin <dmitryshimkin@gmail.com>
  * License: MIT
  * https://github.com/datetime-js/datetime
@@ -50,6 +50,9 @@ var LEAP_MONTH_POINTS = [0];
 /** {string} */
 var FORMAT_RFC822 = 'ddd MMM DD YYYY HH:mm:ss ZZ (zz)';
 
+/** {string} */
+var UTC_TIMEZONE = 'UTC';
+
 /** {number} */
 var MIN_TIMESTAMP_VALUE = -9007199254740992;
 
@@ -90,7 +93,7 @@ message[E_INVALID_ARGUMENT] = function (arg) { return (String(arg)) + " is not a
 message[E_INVALID_ATTRIBUTE] = function () { return 'At least one of the given date attributes is not a valid number'; };
 message[E_INVALID_INTERVAL_ORDER] = function () { return 'Interval end cannot be earlier than interval start'; };
 message[E_INVALID_SETTER_ATTRIBUTE] = function (arg) { return ((String(arg)) + " is not a valid argument. Argument must be a number."); };
-message[E_INVALID_TIMEZONE] = function (timezoneName) { return ("Cannot find tzdata for timezone \"" + (String(timezoneName)) + "\", so fallback to UTC"); };
+message[E_INVALID_TIMEZONE] = function (timezoneName) { return ("Cannot find tzdata for timezone " + (String(timezoneName)) + " – fallback to UTC"); };
 message[E_INVALID_TZDATA] = function (tzdata) { return ((String(tzdata)) + " is not a valid tzdata"); };
 message[E_PARSE_FORMAT] = function (dateStr, format) { return ("String \"" + dateStr + "\" does not match to the given \"" + format + "\" format"); };
 message[E_PARSE_ISO] = function (dateStr) { return ("String \"" + dateStr + "\" is not a valid ISO-8601 date"); };
@@ -1340,6 +1343,14 @@ var PADDINGS = [
 
 var RE_TRIM = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
 
+var utcTzdata = {
+  abbr: [UTC_TIMEZONE],
+  dst: [false],
+  name: UTC_TIMEZONE,
+  offset: [0],
+  until: [null]
+};
+
 /**
  * -------------------------------------------------------------------------------------
  * Inner functions
@@ -1657,10 +1668,12 @@ function getDateUTCAttributes (dt) {
  * @inner
  */
 function getTzdataFor (timezoneName) {
-  var zoneTzdata = getTzdata().zones[timezoneName];
+  var zoneTzdata = isUTC(timezoneName) ? utcTzdata : getTzdata().zones[timezoneName];
+
   if (!zoneTzdata.ambiguous) {
     zoneTzdata.ambiguous = getAmbiguousIntervals(zoneTzdata);
   }
+
   return zoneTzdata;
 }
 
@@ -2409,10 +2422,18 @@ function inherit (Parent, Child) {
 /**
  * @param {string} timezoneName
  * @returns {boolean}
+ */
+function isUTC (timezoneName) {
+  return timezoneName === UTC_TIMEZONE;
+}
+
+/**
+ * @param {string} timezoneName
+ * @returns {boolean}
  * @inner
  */
 function isValidTimezone (timezoneName) {
-  return Object.prototype.hasOwnProperty.call(getTzdata().zones, timezoneName);
+  return isUTC(timezoneName) || Object.prototype.hasOwnProperty.call(getTzdata().zones, timezoneName);
 }
 
 /**
@@ -2475,7 +2496,7 @@ function warn (msg) {
  * -------------------------------------------------------------------------------------
  */
 var tzdata = null;
-var defaultTimezone = 'UTC';
+var defaultTimezone = UTC_TIMEZONE;
 var locale = 'en';
 
 var locales = {};

@@ -37,6 +37,9 @@ export const LEAP_MONTH_POINTS = [0];
 /** {string} */
 export const FORMAT_RFC822 = 'ddd MMM DD YYYY HH:mm:ss ZZ (zz)';
 
+/** {string} */
+export const UTC_TIMEZONE = 'UTC';
+
 /** {number} */
 export const MIN_TIMESTAMP_VALUE = -9007199254740992;
 
@@ -81,7 +84,7 @@ export const message = {
 
   [E_INVALID_SETTER_ATTRIBUTE]: arg => `${String(arg)} is not a valid argument. Argument must be a number.`,
 
-  [E_INVALID_TIMEZONE]: timezoneName => `Cannot find tzdata for timezone "${String(timezoneName)}", so fallback to UTC`,
+  [E_INVALID_TIMEZONE]: timezoneName => `Cannot find tzdata for timezone ${String(timezoneName)} – fallback to UTC`,
 
   [E_INVALID_TZDATA]: tzdata => `${String(tzdata)} is not a valid tzdata`,
 

@@ -11,11 +11,12 @@ import {
 
 import {
   E_INVALID_TZDATA,
+  UTC_TIMEZONE,
   message
 } from './constants';
 
 let tzdata = null;
-let defaultTimezone = 'UTC';
+let defaultTimezone = UTC_TIMEZONE;
 let locale = 'en';
 
 const locales = {};

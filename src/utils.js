@@ -24,6 +24,7 @@ import {
   MIN_TIMESTAMP_VALUE,
   MONTH_MS,
   MONTH_POINTS,
+  UTC_TIMEZONE,
   message
 } from './constants';
 
@@ -37,6 +38,14 @@ const PADDINGS = [
 ];
 
 const RE_TRIM = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+
+const utcTzdata = {
+  abbr: [UTC_TIMEZONE],
+  dst: [false],
+  name: UTC_TIMEZONE,
+  offset: [0],
+  until: [null]
+};
 
 /**
  * -------------------------------------------------------------------------------------
@@ -355,10 +364,12 @@ export function getDateUTCAttributes (dt) {
  * @inner
  */
 export function getTzdataFor (timezoneName) {
-  const zoneTzdata = getTzdata().zones[timezoneName];
+  const zoneTzdata = isUTC(timezoneName) ? utcTzdata : getTzdata().zones[timezoneName];
+
   if (!zoneTzdata.ambiguous) {
     zoneTzdata.ambiguous = getAmbiguousIntervals(zoneTzdata);
   }
+
   return zoneTzdata;
 }
 
@@ -1109,10 +1120,18 @@ export function inherit (Parent, Child) {
 /**
  * @param {string} timezoneName
  * @returns {boolean}
+ */
+export function isUTC (timezoneName) {
+  return timezoneName === UTC_TIMEZONE;
+}
+
+/**
+ * @param {string} timezoneName
+ * @returns {boolean}
  * @inner
  */
 export function isValidTimezone (timezoneName) {
-  return Object.prototype.hasOwnProperty.call(getTzdata().zones, timezoneName);
+  return isUTC(timezoneName) || Object.prototype.hasOwnProperty.call(getTzdata().zones, timezoneName);
 }
 
 /**
